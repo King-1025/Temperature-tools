@@ -10,9 +10,8 @@ VERSION="pre-1.0"
 
 import sys
 import os
-import re
-import tkinter
-import tkinter.messagebox
+#import tkinter
+#import tkinter.messagebox
 
 #from func_fit import main as data
 
@@ -30,14 +29,13 @@ def command(inpath,outpath):
       return stra+" --list_csv_data_files="+inpath+" --binary_file_path="+outpath
                                                                       
 csv_list=[]
-def search(path,pattern):
+def search(path,ext):
     for item in os.listdir(path):
         item_path = os.path.join(path, item)
         if os.path.isdir(item_path):
-            search(item_path,pattern)
+            search(item_path,ext)
         elif os.path.isfile(item_path):
-            #if re.match(pattern,item_path) != None:
-            if pattern in item_path:
+            if os.path.splitext(item_path)[1] == ext:
                 global csv_list
                 csv_list.append(item_path)
 
@@ -47,7 +45,7 @@ def convert(path,location="output",outfile="data.out"):
              if os.path.isfile(p):
                  csv_list.append(p)
              elif os.path.isdir(p):
-                 search(p,"csv")
+                 search(p,".csv")
     #print(location,outfile)
     i,count=1,len(csv_list)
     for csv in csv_list:
@@ -55,13 +53,16 @@ def convert(path,location="output",outfile="data.out"):
         if not os.path.exists(lp):
             os.makedirs(lp)
         out=lp+os.sep+outfile
-        print("\n======> %s\n" % csv)
+        print("\n======> %s (%d)\n" %(csv,i))
         os.system(command(csv,out))
-        print("\n======> %s" % out)
+        print("\n======> %s (%d)" %(out,i))
         if i < count:
-           if not ask("csv:"+csv_list[i]):
-               break
+           #if not ask("csv:"+csv_list[i]):
+           if input("\n[%d] next csv file path:%s, continue ok? (yes/no)" %(count-i,csv_list[i])) == "no":
+              break
            i+=1
+    if count == 0:
+       i=0
     print("\ncount:%d handle:%d location:%s" %(count,i,location))
 
 def help(s=0):
