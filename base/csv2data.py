@@ -40,14 +40,13 @@ def command(model,inpath,outpath):
     return stra+" --model_types="+model+" --list_csv_data_files="+inpath+" --binary_file_path="+outpath
                              
 csv_list=[]
-def search(path,pattern):
+def search(path,ext):
     for item in os.listdir(path):
         item_path = os.path.join(path, item)
         if os.path.isdir(item_path):
-            search(item_path,pattern)
+            search(item_path,ext)
         elif os.path.isfile(item_path):
-            #if re.match(pattern,item_path) != None:
-            if pattern in item_path:
+            if os.path.splitext(item_path)[1] == ext:
                 global csv_list
                 csv_list.append(item_path)
 
@@ -74,9 +73,12 @@ def convert(device,path,location="output",outfile="data.out"):
         os.system(command(types[device],csv,out))
         print("\n======> %s" % out)
         if i < count:
-           if not ask("csv:"+csv_list[i]):
-               break
+           #if not ask("csv:"+csv_list[i]):
+           if input("\n[%d] next csv file path:%s, continue ok? (yes/no)" %(count-i,csv_list[i])) == "no":
+              break
            i+=1
+    if count == 0:
+       i=0
     print("\ncount:%d handle:%d location:%s" %(count,i,location))
 
 def help(s=0):
