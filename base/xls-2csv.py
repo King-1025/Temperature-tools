@@ -16,7 +16,7 @@ import time as tim
 try:
     import xlrd
 except ImportError:
-    print("not found xlrd! please use pip install xlrd")
+    print("\033[5;31mNot found xlrd! please use pip install xlrd\033[0m")
 '''
 try:
    import openpyxl

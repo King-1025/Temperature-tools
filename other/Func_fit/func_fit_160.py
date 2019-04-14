@@ -16,7 +16,6 @@ from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
 from BinaryRectifyCoefficientWriter import BinaryRectifyCoefficientWriter
 
-
 def parse_args(check=True):
 	## argparse does NOT type bool. Use ast.literal_evaal instead.
     parser = argparse.ArgumentParser(description='A procedure to estimate the coefficients of the temperature curvs')
@@ -43,7 +42,6 @@ def parse_args(check=True):
     FLAGS, unparsed = parser.parse_known_args()
     
     return FLAGS, unparsed
-
 
 def load_data_temperature_with_multiple_distance_columns(filename, splitchar = ';', col_y = 0, rescale = 100):
     # Variables
@@ -94,8 +92,7 @@ def load_data_temperature_with_multiple_distance_columns(filename, splitchar = '
     x_vecs = [list(values_split[idx]) for idx in range(len(values_split)) if idx != col_y]
     
     return x_vecs, y_vecx, distances
-
-
+    
 def load_data_temperature(filename, splitchar = ';', col_x = 2, col_y = 0, rescale = 100):
     distance = 0
     x, y=[],[]
@@ -130,31 +127,20 @@ def load_data_temperature(filename, splitchar = ';', col_x = 2, col_y = 0, resca
             # print(val_x, val_y)
     return x, y, distance
 
-
 def func_power(x, a, b, c):
     return a * np.power(x, b) + c
-
 
 def func_expre(x,a,b):
     return a*np.exp(b/x)
 
-
 def compute_poly_value(x, coeff, order):
     return coeff * np.power(x, order)
 
-
-def fit_pred(x, coeffs, func_type = 'pow', order = 1):
+def fit_pred(x, coeffs, func_type = 'pow'):
     y = None
     if 'pow' == func_type:
         y = func_power(x, coeffs[0], coeffs[1], coeffs[2])
     elif 'poly' == func_type:
-        if 1 == order:
-            # Begin: Special case for linear fit.
-            lstVal = [coeffs[0], coeffs[2]]
-            coeffs = lstVal
-            # End:
-            print(coeffs)
-        #  Evaluation.
         y = np.polyval(coeffs, x)
 #        y = np.zeros([len(x), ])
 #        for o_i in range(len(coeffs)):
@@ -169,20 +155,16 @@ def fit_pred(x, coeffs, func_type = 'pow', order = 1):
     
     return y
 
-
 def funz_rev(x, a, b, c):
     return math.exp(math.log((x-c)/a)/b)
-
-
-def fit_main(x, y, func_type = 'pow', order=2):
+    
+def fit_main(x, y, func_type = 'pow', order=3):
     coeffs = None
     if 'pow' == func_type:
-        init_guess = np.array([300, 0.002, -200])
+        init_guess = np.array([60,0.002, -200])
         popt, pcov = curve_fit(func_power, x, y, init_guess, maxfev=500000)
         coeffs = popt
     elif 'poly' == func_type:
-        if 1 != order and 2 != order:
-            raise ValueError('The order should be 1 or 2')
         popt = np.polyfit(x, y, order)
         coeffs = popt
     elif 'exp' == func_type:
@@ -191,20 +173,15 @@ def fit_main(x, y, func_type = 'pow', order=2):
         
     return coeffs
 
-
 def fit_print(coeffs, func_type = 'pow'):
     line = ''
     if 'pow' == func_type:
         line = "%.09f * pow(x,%.09f) + %.09f"%(coeffs[0], coeffs[1], coeffs[2])
     elif 'poly' == func_type:
-        # Begin: Special case for linear fit.
-        lstVal = [coeffs[0], coeffs[2]]
-        coeffs = lstVal
-        # End:
         for o_i in range(len(coeffs)):
             order = len(coeffs) - o_i
             
-            line_s = "%.09f * x**%d"%(coeffs[o_i], order - 1)
+            line_s = "%.09f * x**%d"%(coeffs[o_i], order)
             if o_i != (len(coeffs) - 1):
                 line_s += ' + '
             
@@ -213,7 +190,6 @@ def fit_print(coeffs, func_type = 'pow'):
         line = "%.09f * exp(%.09f / x) + %.09f"%(coeffs[0], coeffs[1])
         
     return line
-
 
 def main():
     FLAGS, unparsed = parse_args()
@@ -261,7 +237,7 @@ def main():
             x_v.extend(x_vecs)
             y_v.extend(y_vecx)
             # Chaos: Add for rectify map output
-            dists.extend(dists_vec)
+            dists.extend(distancx)
             # End
         else:
             # x_v.append(x)
@@ -290,14 +266,7 @@ def main():
             y = y_v # [idx]
             distance = dists[idx]
         
-        coeffs = fit_main(x, y, func_type, order=1)        
-        if func_type == 'poly' and len(coeffs) == 2:  # A linear fitting alg.
-            """
-            To fit the demand of the existing system. The former formula is a*exp(x, b) + c.
-            For linear model, the formula is a*x + b. Thus we make b be 1.0.
-            """
-            lstVal = [coeffs[0], 1.0, coeffs[1]]
-            coeffs = lstVal
+        coeffs = fit_main(x, y, func_type)
         # Save the coefficient in to a file.
         BinaryRectifyCoefficientWriter(filename_binary_o, distance, coeffs[0], coeffs[1], coeffs[2])
         
@@ -325,13 +294,12 @@ def main():
         if b_show_fitted:
             plt.xlabel('x axis')
             plt.ylabel('y axis')
-            plt.legend(loc=4) # 指定legend的位置,读者可以自己help它的用法
+            plt.legend(loc=4)#指定legend的位置,读者可以自己help它的用法
             plt.title('curve_fit')
             plt.grid(True)
             plt.xlim(0, 200)
             plt.ylim(0, 200)
             plt.show()
-
 
 if __name__ == '__main__':
     '''
