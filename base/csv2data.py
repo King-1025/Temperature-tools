@@ -87,10 +87,18 @@ def check_outfile(model,outfile):
       if model == "pow":
          o="powfitmap.data"
       elif model == "poly":
-         o="polyfitmap.data"
+         o="powfitmap.data"
       else:
          o=model+".data"
     return o
+
+def check_location(device,model,location):
+    l=location
+    if device == "160":
+       l+=os.sep+device
+    else: 
+       l+=os.sep+device+os.sep+model
+    return l
 
 def convert(device,model,path,location="output",outfile="data.out"):
     f,t=check_device(device,model)
@@ -103,7 +111,7 @@ def convert(device,model,path,location="output",outfile="data.out"):
                  csv_list.append(p)
              elif os.path.isdir(p):
                  search(p,".csv")
-    location+=os.sep+device
+    location=check_location(device,t,location)
     #print(device,location,outfile)
     i,count=1,len(csv_list)
     for csv in csv_list:
