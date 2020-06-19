@@ -9,8 +9,10 @@ import sys
 import os
 
 requirements=sys.path[0]+os.sep+"requirements.txt"
-handler_xlsx2csv=sys.path[0]+os.sep+"xls-2csv.py"+" "
-handler_csv2data=sys.path[0]+os.sep+"csv2data.py"+" "
+
+# fix windows10 bug 2020.6.19
+handler_xlsx2csv="python "+sys.path[0]+os.sep+"xls-2csv.py"+" "
+handler_csv2data="python "sys.path[0]+os.sep+"csv2data.py"+" "
 
 def solve_requirements():
       os.system("pip install -r "+str(requirements))
