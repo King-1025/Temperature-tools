@@ -23,13 +23,13 @@ except ImportError:
 #设备类型
 device_list={
    "160":{
-           "func":sys.path[0]+os.sep+"func_fit_160.py",
+           "func":"python "+sys.path[0]+os.sep+"func_fit_160.py",
            "type":{
                     "0":"pow"
            }
    },
    "320":{
-           "func":sys.path[0]+os.sep+"func_fit_320.py",
+           "func":"python "+sys.path[0]+os.sep+"func_fit_320.py",
            "type":{
                     "0":"pow",
                     "1":"poly"
