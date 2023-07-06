@@ -1,5 +1,5 @@
-﻿numpy==1.15.4
-scipy==1.2.0
+numpy==1.15.4
+scipy==1.10.0
 matplotlib==3.0.2
 xlrd==1.2.0
 openpyxl==2.5.12
